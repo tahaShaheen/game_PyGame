@@ -343,16 +343,27 @@ def redrawGameWindow():
                 print("right")
             
             # making sure samurai does not go into the world beyond the germs
-            if abs(widthChange) <= (columnsOfGerms - 1) // 2 and abs(heightChange) <= (rowsOfGerms - 1) // 2:
-                # updating where the samurai is now
-                samuraiPlacement = tuple([initialPlacement[0] + (characterWidth + widthSpacing) * (((columnsOfGerms - 1) // 2) + widthChange),
-                                         initialPlacement[1] + (characterHeight + heightSpacing) * (((rowsOfGerms - 1) // 2) + heightChange)])
+            if abs(widthChange) > (columnsOfGerms - 1) // 2:
+                if widthChange < 0:
+                   widthChange = -1 * (columnsOfGerms - 1) // 2
+                else:
+                   widthChange = (columnsOfGerms - 1) // 2 
+                  
+            if abs(heightChange) > (rowsOfGerms - 1) // 2:
+                if heightChange < 0:
+                    heightChange = -1 * (rowsOfGerms - 1) // 2
+                else:
+                    heightChange = (rowsOfGerms - 1) // 2
 
-                if samuraiPlacement not in placementsOfGermsKilled: # make sure not to add the same entry again
-                    placementsOfGermsKilled.append(samuraiPlacement)
-                
-                # randomly changing the attacking direction of samurai
-                samuraiStance = random.choice(samuraiAttackingStances)
+            # updating where the samurai is now
+            samuraiPlacement = tuple([initialPlacement[0] + (characterWidth + widthSpacing) * (((columnsOfGerms - 1) // 2) + widthChange),
+                                        initialPlacement[1] + (characterHeight + heightSpacing) * (((rowsOfGerms - 1) // 2) + heightChange)])
+
+            if samuraiPlacement not in placementsOfGermsKilled: # make sure not to add the same entry again
+                placementsOfGermsKilled.append(samuraiPlacement)
+            
+            # randomly changing the attacking direction of samurai
+            samuraiStance = random.choice(samuraiAttackingStances)
 
     animationCount += 1 # this helps with the animations
 
