@@ -6,6 +6,7 @@ import random
 pygame.init()
 
 run = True
+fight = False
 
 # These are the only numbers that should be edited
 # ====================================================
@@ -14,8 +15,6 @@ rowsOfGerms = 5  # keep this an odd number for nice look
 samuraiDelay = 2  # The samurai animation is delayed compared to germ animation
 # ====================================================
 
-x = 50
-y = 425
 characterWidth = 24  # width of sprites in pixels
 characterHeight = 32  # height of sprites in pixels
 vel = 5
@@ -34,9 +33,6 @@ initialPlacement = [characterWidth * columnsOfGerms + widthSpacing *
 
 samuraiPlacement = tuple([initialPlacement[0] + (characterWidth + widthSpacing) * ((columnsOfGerms - 1) // 2),
                          initialPlacement[1] + (characterHeight + heightSpacing) * ((rowsOfGerms - 1) // 2)])
-
-left, right, up, down, attack = False, False, False, False, False
-fight = False
 
 win = pygame.display.set_mode((screenWidth, screenHeight))
 pygame.display.set_caption("First game")
@@ -348,8 +344,7 @@ def redrawGameWindow():
         win.blit(samuraiWaiting[(animationCount//4) %
                  samuraiSpriteCount], samuraiPlacement)
     else:
-        if left or right or up or down:
-            attackCount += 1
+        attackCount += 1
 
         win.blit(samuraiStance[(
             animationCount//samuraiDelay) % samuraiSpriteCount], samuraiPlacement)
@@ -445,29 +440,9 @@ while run:
 
     keys = pygame.key.get_pressed()
 
-    if keys[pygame.K_LEFT] and x > vel:
-        x -= vel
-        left = True
-        right, up, down = False, False, False
-    elif keys[pygame.K_RIGHT] and x < 500 - vel - characterWidth:
-        x += vel
-        right = True
-        left, up, down = False, False, False
-    elif keys[pygame.K_UP] and y > vel:
-        y -= vel
-        up = True
-        left, right, down = False, False, False
-    elif keys[pygame.K_DOWN] and y < 500 - vel - characterHeight:
-        y += vel
-        down = True
-        left, right, up = False, False, False
-    elif keys[pygame.K_SPACE]:
+    if keys[pygame.K_SPACE]:
         fight = not(fight)
-    else:
-        right, left, up, down = False, False, False, False
-        animationCount = 0
 
     redrawGameWindow()
-
 
 pygame.quit()
