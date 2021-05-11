@@ -358,28 +358,38 @@ def redrawGameWindow():
         if attackCount >= (4 * samuraiSpriteCount * samuraiDelay):
             attackCount = 0
 
-            nextLocationHeightAddition = 0
-            nextLocationWidthAddition = 0
+            frontLocationHeightAddition = 0
+            frontLocationWidthAddition = 0
+            leftLocationWidthAddition = 0
+            leftLocationHeightAddition = 0
 
             if samuraiStance == samuraiAttackDown:
                 heightChange += 1
                 print("down")
-                nextLocationHeightAddition = 1
+                frontLocationHeightAddition = 1
+                leftLocationWidthAddition = 1
+                stanceToTheLeft = samuraiAttackRight
 
             elif samuraiStance == samuraiAttackUp:
                 heightChange -= 1
                 print("up")
-                nextLocationHeightAddition = -1
+                frontLocationHeightAddition = -1
+                leftLocationWidthAddition = -1
+                stanceToTheLeft = samuraiAttackLeft
 
             elif samuraiStance == samuraiAttackLeft:
                 widthChange -= 1
                 print("left")
-                nextLocationWidthAddition = -1
+                frontLocationWidthAddition = -1
+                leftLocationHeightAddition = 1
+                stanceToTheLeft = samuraiAttackDown
 
             elif samuraiStance == samuraiAttackRight:
                 widthChange += 1
                 print("right")
-                nextLocationWidthAddition = +1
+                frontLocationWidthAddition = 1
+                leftLocationHeightAddition = -1
+                stanceToTheLeft = samuraiAttackUp
 
             # making sure samurai does not go into the world beyond the germs
             if abs(widthChange) > (columnsOfGerms - 1) // 2:
@@ -403,11 +413,19 @@ def redrawGameWindow():
                 placementsOfAliveGerms.remove(samuraiPlacement)
 
             loacationInFrontOfSamurai = tuple(
-                [initialPlacement[0] + (characterWidth + widthSpacing) * (((columnsOfGerms - 1) // 2) + widthChange + nextLocationWidthAddition),
-                 initialPlacement[1] + (characterHeight + heightSpacing) * (((rowsOfGerms - 1) // 2) + heightChange + nextLocationHeightAddition)])
+                [initialPlacement[0] + (characterWidth + widthSpacing) * (((columnsOfGerms - 1) // 2) + widthChange + frontLocationWidthAddition),
+                 initialPlacement[1] + (characterHeight + heightSpacing) * (((rowsOfGerms - 1) // 2) + heightChange + frontLocationHeightAddition)])
 
-            if loacationInFrontOfSamurai not in placementsOfAliveGerms:
-                # randomly changing the attacking direction of samurai
+            loacationToTheLeftOfSamurai = tuple(
+                [initialPlacement[0] + (characterWidth + widthSpacing) * (((columnsOfGerms - 1) // 2) + widthChange + leftLocationWidthAddition),
+                 initialPlacement[1] + (characterHeight + heightSpacing) * (((rowsOfGerms - 1) // 2) + heightChange + leftLocationHeightAddition)])
+
+            # This will make samurai attack in a anticlockwise manner
+            if loacationToTheLeftOfSamurai in placementsOfAliveGerms:
+                # attack to the left if there is something on the left
+                samuraiStance = stanceToTheLeft
+            elif loacationInFrontOfSamurai not in placementsOfAliveGerms:
+                # randomly changing the attacking direction of samurai when no germ in front
                 samuraiStance = random.choice(samuraiAttackingStances)
 
     animationCount += 1  # this helps with the animations
