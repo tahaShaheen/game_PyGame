@@ -340,7 +340,7 @@ def redrawGameWindow():
 
     # samuraiStance = samuraiAttackDown  # delete this later - only for testing
 
-    if not(fight):
+    if not(fight) or len(placementsOfAliveGerms) == 0:
         win.blit(samuraiWaiting[(animationCount//4) %
                  samuraiSpriteCount], samuraiPlacement)
     else:
