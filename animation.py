@@ -7,14 +7,26 @@ pygame.init()
 
 run = True
 
+# These are the only numbers that should be edited
+columnsOfGerms = 5 # keep this an odd number for nice look
+rowsOfGerms = 5 # keep this an odd number for nice look
+
 x = 50
 y = 425
 characterWidth = 24  # width of sprites in pixels
 characterHeight = 32  # height of sprites in pixels
 vel = 5
 
-screenWidth = characterWidth * 15
-screenHeight = characterHeight * 15
+screenWidth = characterWidth * columnsOfGerms * 3 # To leave gap above and below
+screenHeight = characterHeight * rowsOfGerms * 3 # To leave a gap on both sides of screen
+
+widthSpacing = characterWidth // ((columnsOfGerms * 3) - 1) # How much space to leave horizontally between characters
+heightSpacing = characterHeight // ((rowsOfGerms * 3) - 1) # How much space to leave vertically between characters
+
+initialPlacement = [characterWidth * columnsOfGerms + widthSpacing *
+                    columnsOfGerms, characterHeight * rowsOfGerms + heightSpacing * rowsOfGerms] # Start charachater placement from this point
+
+samuraiPlacement = tuple([initialPlacement[0] + (characterWidth + widthSpacing) * ((columnsOfGerms -1) // 2), initialPlacement[1] + (characterHeight + heightSpacing) * ((rowsOfGerms - 1) // 2)])
 
 left, right, up, down, attack = False, False, False, False, False
 fight = False
@@ -25,9 +37,6 @@ pygame.display.set_caption("First game")
 clock = pygame.time.Clock()
 
 walkCount = 0
-
-columnsOfGerms = 5 # keep this an odd numbers
-rowsOfGerms = 5 # keep this an odd number
 
 totalGerms = columnsOfGerms * rowsOfGerms - 1 # because Samurai takes one space
 
@@ -218,16 +227,6 @@ germsUpFacing = [
     germ2UpFacing
 ]
 
-widthSpacing = characterWidth // 14
-heightSpacing = characterHeight // 14
-
-initialPlacement = [characterWidth * 5 + widthSpacing *
-                    5, characterHeight * 5 + heightSpacing * 5]
-
-samuraiPlacement = tuple([initialPlacement[0] + characterWidth * 2 +
-                          widthSpacing * 2, initialPlacement[1] + characterHeight * 2 + heightSpacing * 2])
-
-
 germsLeftOfSamurai = []
 germsRightOfSamurai = []
 germsAboveSamurai = []
@@ -267,41 +266,27 @@ def redrawGameWindow():
 
     # Placing germs on screen
 
-    i = 0
-    for germ in germsLeftOfSamurai:
-        if i < 5:
-            win.blit(germ[walkCount % germSpriteCount], tuple(
-                [initialPlacement[0], initialPlacement[1] + characterHeight * i + heightSpacing * i]))
-        else:
-            win.blit(germ[walkCount % germSpriteCount], tuple([initialPlacement[0] + characterWidth + widthSpacing,
-                     initialPlacement[1] + characterHeight * (i - 5) + heightSpacing * (i - 5)]))
-        i += 1
+    # i = 0
+    for i in range(0, (columnsOfGerms - 1) // 2, 1): # columns
+        for j in range (0, rowsOfGerms, 1): # rows
+            win.blit(germsLeftOfSamurai[i + j][walkCount % germSpriteCount], tuple(
+            [initialPlacement[0] + (characterWidth + widthSpacing) * i, initialPlacement[1] + (characterHeight + heightSpacing) * j]))
+            
+            win.blit(germsRightOfSamurai[i + j][walkCount % germSpriteCount], tuple(
+            [initialPlacement[0] + (characterWidth + widthSpacing) * (columnsOfGerms - i - 1), initialPlacement[1] + (characterHeight + heightSpacing) * j]))
 
-    i = 0
-    for germ in germsRightOfSamurai:
-        if i < 5:
-            win.blit(germ[walkCount % germSpriteCount], tuple([initialPlacement[0] + characterWidth * 3 +
-                     widthSpacing * 3, initialPlacement[1] + characterHeight * i + heightSpacing * i]))
-        else:
-            win.blit(germ[walkCount % germSpriteCount], tuple([initialPlacement[0] + characterWidth * 4 + widthSpacing *
-                     4, initialPlacement[1] + characterHeight * (i - 5) + heightSpacing * (i - 5)]))
-        i += 1
 
-    i = 0
-    for germ in germsAboveSamurai:
-        win.blit(germ[walkCount % germSpriteCount], tuple([initialPlacement[0] + characterWidth * 2 +
-                                                           widthSpacing * 2, initialPlacement[1] + characterHeight * i + heightSpacing * i]))
-        i += 1
 
-    i = 0
-    for germ in germsBelowSamurai:
-        win.blit(germ[walkCount % germSpriteCount], tuple([initialPlacement[0] + characterWidth * 2 +
-                                                           widthSpacing * 2, initialPlacement[1] + characterHeight * (i + 3) + heightSpacing * (i + 3)]))
-        i += 1
+    for i in range (0, (rowsOfGerms - 1)//2, 1):
+        win.blit(germsAboveSamurai[i][walkCount % germSpriteCount], tuple(
+            [initialPlacement[0] + (characterWidth + widthSpacing) * ((columnsOfGerms - 1) // 2), initialPlacement[1] + (characterHeight + heightSpacing) * i]))
+        
+        win.blit(germsBelowSamurai[i][walkCount % germSpriteCount], tuple(
+            [initialPlacement[0] + (characterWidth + widthSpacing) * ((columnsOfGerms - 1) // 2), initialPlacement[1] + (characterHeight + heightSpacing) * (rowsOfGerms - i - 1)]))
 
     samuraiDelay = 2  # The samurai animation is delayed compared to germ animation
 
-    samuraiStance = samuraiAttackUp
+    samuraiStance = samuraiAttackUp # delete this later - only for testing
 
     if not(fight):
         win.blit(samuraiWaiting[(walkCount//4) %
@@ -342,22 +327,16 @@ def redrawGameWindow():
                 widthChange += 1
                 print("right")
 
-            if abs(widthChange) < 3 and abs(heightChange) < 3:
-                samuraiPlacement = tuple([initialPlacement[0] + characterWidth * (2 + widthChange) +
-                                          widthSpacing * (2 + widthChange), initialPlacement[1] + characterHeight * (2 + heightChange) + heightSpacing * (2 + heightChange)])
-
+            if abs(widthChange) <= (columnsOfGerms - 1) // 2 and abs(heightChange) <= (rowsOfGerms - 1) // 2:
+                # samuraiPlacement = tuple([initialPlacement[0] + (characterWidth + widthSpacing) * (2 + widthChange), initialPlacement[1] + (characterHeight + heightSpacing) * (2 + heightChange)])
+                
+                samuraiPlacement = tuple([initialPlacement[0] + (characterWidth + widthSpacing) * (((columnsOfGerms -1) // 2) + widthChange), initialPlacement[1] + (characterHeight + heightSpacing) * (((rowsOfGerms - 1) // 2) + heightChange)])
+            
             # print(widthChange, heightChange)
             # print("new", samuraiPlacement)
 
     walkCount += 1
 
-    # win.blit(germ4LeftFacing[1], tuple([initialPlacement[0], initialPlacement[1] + characterHeight + heightSpacing]))
-
-    # if left or right or down or up:
-    # win.blit(attackRight[walkCount//4], samuraiLocation)
-    # walkCount += 1
-
-    # pygame.draw.rect(win, (255,0,0), (x,y,width, height))
     pygame.display.update()
 
 
